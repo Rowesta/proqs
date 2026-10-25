@@ -7,7 +7,7 @@ import { quoteHref, site } from "@/lib/site";
 export const metadata: Metadata = {
   title: "About ProQS New Zealand | Independent Quantity Surveyor",
   description:
-    "Discover ProQS New Zealand, based in Ponsonby, Auckland, providing expert quantity surveying services for residential construction projects across New Zealand.",
+    "Discover ProQS New Zealand, based in Belmont on Auckland's North Shore, providing expert quantity surveying services for residential construction projects across New Zealand.",
   alternates: { canonical: "/about" },
   openGraph: {
     title: "About ProQS New Zealand | Independent Quantity Surveyor",
@@ -67,7 +67,7 @@ export default function About() {
           <h2>One expert, start to finish</h2>
           <div className="prose">
             <p className="lead">
-              ProQS is {site.contactName}, a Registered Quantity Surveyor based in Ponsonby, Auckland, with more
+              ProQS is {site.contactName}, a Registered Quantity Surveyor based in Belmont on Auckland&apos;s North Shore, with more
               than ten years of experience pricing residential construction across New Zealand.
             </p>
             <p>

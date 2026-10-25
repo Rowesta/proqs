@@ -7,12 +7,12 @@ export const site = {
   phoneHref: "tel:+64275550720",
   hours: "Weekdays, 8am – 5pm",
   address: {
-    street: "26A Crummer Road",
-    suburb: "Ponsonby",
+    street: "43B Eversleigh Road",
+    suburb: "Belmont",
     city: "Auckland",
   },
   mapsHref:
-    "https://www.google.com/maps/search/?api=1&query=26A+Crummer+Road+Ponsonby+Auckland",
+    "https://www.google.com/maps/search/?api=1&query=43B+Eversleigh+Road+Belmont+Auckland",
   // Professional memberships shown in the footer and credentials strip,
   // e.g. "NZIQS member". Leave empty until confirmed with Murray.
   memberships: [] as string[],

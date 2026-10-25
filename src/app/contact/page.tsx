@@ -5,12 +5,12 @@ import QuoteForm from "@/components/QuoteForm";
 import { faqs, mailto, steps } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Contact ProQS New Zealand | Quantity Surveyor in Ponsonby",
+  title: "Contact ProQS New Zealand | Quantity Surveyor in Belmont, Auckland",
   description:
     "Send your plans to ProQS New Zealand for a reliable residential cost estimate, or contact Murray Bell by phone or email.",
   alternates: { canonical: "/contact" },
   openGraph: {
-    title: "Contact ProQS New Zealand | Quantity Surveyor in Ponsonby",
+    title: "Contact ProQS New Zealand | Quantity Surveyor in Belmont, Auckland",
     description:
       "Reach out to ProQS New Zealand for your construction cost needs. We’re here to assist you with accurate estimates and advice.",
   },

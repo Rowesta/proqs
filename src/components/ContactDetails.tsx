@@ -25,7 +25,7 @@ export default function ContactDetails({ layout = "row", emailNote = "Send your 
     {
       icon: <PinIcon />,
       title: layout === "row" ? "Office" : "Location",
-      note: layout === "row" ? "Visit us at our office located at:" : "Visit our Ponsonby, Auckland office.",
+      note: layout === "row" ? "Visit us at our office located at:" : "Visit our Belmont, Auckland office.",
       label: `${site.address.street}, ${site.address.suburb} ${site.address.city}`,
       href: site.mapsHref,
       external: true,
