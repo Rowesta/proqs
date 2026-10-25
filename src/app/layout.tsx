@@ -56,7 +56,8 @@ const jsonLd = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en-NZ" className={`${onest.variable} ${instrumentSans.variable}`}>
-      <body>
+      {/* Browser extensions (e.g. ColorZilla) add attributes to <body> before React loads */}
+      <body suppressHydrationWarning>
         <a href="#main" className="skip-link">
           Skip to content
         </a>
