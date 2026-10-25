@@ -15,7 +15,7 @@ const TOTAL_DURATION = 1100;
 const easeOut = (x: number) => 1 - Math.pow(1 - Math.min(Math.max(x, 0), 1), 3);
 
 export default function EstimateCard() {
-  const { title, subtitle, items } = sampleEstimate;
+  const { title, subtitle, items, areaM2 } = sampleEstimate;
   const total = items.reduce((sum, i) => sum + i.amount, 0);
   const max = Math.max(...items.map((i) => i.amount));
   const totalStart = START + items.length * STAGGER + TOTAL_DELAY;
@@ -97,6 +97,7 @@ export default function EstimateCard() {
           <small> + GST</small>
         </strong>
       </div>
+      <p className="estimate__rate" style={{ "--row-delay": `${totalStart}ms` } as React.CSSProperties}>≈ {nzd.format(total / areaM2)} per m²</p>
       <figcaption className="estimate__note">Example only — every ProQS estimate is itemised to your plans.</figcaption>
     </figure>
   );

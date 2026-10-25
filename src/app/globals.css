@@ -572,6 +572,12 @@ p {
   font-size: 0.75rem;
   color: var(--text-muted);
 }
+.estimate__rate {
+  margin: 0.15rem 0 0;
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
 .estimate__note {
   margin-top: 0.6rem;
   font-size: 0.72rem;
@@ -1179,6 +1185,24 @@ p {
 .quote-form .button {
   justify-self: start;
 }
+.email-plans {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+}
+.email-plans__title {
+  font-size: 1.6rem;
+  margin: 0;
+}
+.email-plans p {
+  color: var(--text-muted);
+  margin: 0;
+  max-width: 34rem;
+}
+.email-plans .button {
+  margin: 0.5rem 0;
+  overflow-wrap: anywhere;
+}
 .form-success {
   text-align: center;
   padding: 2.5rem 1rem;
@@ -1306,11 +1330,13 @@ p {
     animation: estimate-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   }
   .js .estimate.is-idle .estimate__row,
-  .js .estimate.is-idle .estimate__total {
+  .js .estimate.is-idle .estimate__total,
+  .js .estimate.is-idle .estimate__rate {
     opacity: 0;
   }
   .js .estimate.is-running .estimate__row,
-  .js .estimate.is-running .estimate__total {
+  .js .estimate.is-running .estimate__total,
+  .js .estimate.is-running .estimate__rate {
     animation: fade-in 0.4s ease var(--row-delay) both;
   }
 

@@ -106,18 +106,19 @@ export const steps = [
 
 /**
  * Illustrative only — shown on the homepage as an example of an itemised estimate.
- * Not a quote or published rates. Murray should sanity-check these figures.
+ * Not a quote. Based on Murray's guide rate of $3,000/m²; items must sum to areaM2 × 3000.
  */
 export const sampleEstimate = {
   title: "New 3-bedroom home",
   subtitle: "180 m² · single level · Auckland",
+  areaM2: 180,
   items: [
-    { label: "Site works & foundations", amount: 68400 },
-    { label: "Framing & structure", amount: 96200 },
-    { label: "Roofing & cladding", amount: 112800 },
-    { label: "Windows & doors", amount: 54300 },
-    { label: "Plumbing & electrical", amount: 71500 },
-    { label: "Linings, kitchen & finishes", amount: 138900 },
+    { label: "Site works & foundations", amount: 68000 },
+    { label: "Framing & structure", amount: 96000 },
+    { label: "Roofing & cladding", amount: 112000 },
+    { label: "Windows & doors", amount: 54000 },
+    { label: "Plumbing & electrical", amount: 72000 },
+    { label: "Linings, kitchen & finishes", amount: 138000 },
   ],
 };
 

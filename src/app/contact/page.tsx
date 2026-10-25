@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import ContactDetails from "@/components/ContactDetails";
-import { ChevronDownIcon } from "@/components/Icons";
+import { ChevronDownIcon, MailIcon } from "@/components/Icons";
 import QuoteForm from "@/components/QuoteForm";
-import { faqs, mailto, steps } from "@/lib/site";
+import { faqs, mailto, site, steps } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Contact ProQS New Zealand | Quantity Surveyor in Belmont, Auckland",
@@ -26,6 +26,12 @@ const faqJsonLd = {
   })),
 };
 
+// The upload form only appears once storage and email are configured (see README).
+// Until then visitors get a plain "email your plans" panel instead of a form that can't send.
+const formEnabled = Boolean(
+  process.env.BLOB_READ_WRITE_TOKEN && process.env.RESEND_API_KEY && process.env.QUOTE_FROM_EMAIL,
+);
+
 export default function Contact() {
   return (
     <>
@@ -41,7 +47,27 @@ export default function Contact() {
           </div>
           <div className="contact-layout">
             <div className="panel">
-              <QuoteForm />
+              {formEnabled ? (
+                <QuoteForm />
+              ) : (
+                <div className="email-plans">
+                  <span className="icon-tile">
+                    <MailIcon />
+                  </span>
+                  <h2 className="email-plans__title">Email your plans to Murray</h2>
+                  <p>
+                    Attach your drawings (PDF, images or CAD files) and include a few details: the project
+                    type, location, and roughly where you are in the design process.
+                  </p>
+                  <a href={mailto("Plans for a quote")} className="button button--primary button--large">
+                    Email {site.email}
+                  </a>
+                  <p className="form-note">
+                    Files too large to email? Share a Dropbox or Google Drive link, or call Murray on{" "}
+                    <a href={site.phoneHref}>{site.phoneDisplay}</a>.
+                  </p>
+                </div>
+              )}
             </div>
             <aside className="contact-aside">
               <h2 className="contact-aside__title">Prefer to talk first?</h2>
