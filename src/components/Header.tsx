@@ -44,7 +44,7 @@ export default function Header() {
     <header className="nav">
       <div className="container nav__inner">
         <Link href="/" className="nav__logo" aria-label="ProQS home">
-          <Image src="/images/logo-blue.png" alt="ProQS New Zealand" width={500} height={239} preload />
+          <Image src="/brand/proqs-logo.svg" alt="ProQS New Zealand" width={767} height={196} preload />
         </Link>
 
         <button

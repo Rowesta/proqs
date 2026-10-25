@@ -275,7 +275,7 @@ p {
   gap: 2.5rem;
 }
 .nav__logo img {
-  height: 56px;
+  height: 40px;
   width: auto;
 }
 .nav__menu {
@@ -826,7 +826,7 @@ p {
   overflow: hidden;
 }
 .cta-card__media img {
-  width: 100%;
+  width: 58%;
   height: auto;
 }
 @media (max-width: 767px) {
@@ -1101,7 +1101,7 @@ p {
   margin: 1.25rem 0 1.5rem;
 }
 .footer__logo img {
-  height: 64px;
+  height: 44px;
   width: auto;
 }
 .footer__heading {

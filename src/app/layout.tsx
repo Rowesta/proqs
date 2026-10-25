@@ -39,7 +39,8 @@ const jsonLd = {
   url: site.url,
   email: site.email,
   telephone: site.phoneDisplay,
-  image: `${site.url}/images/logo-blue.png`,
+  logo: `${site.url}/brand/proqs-logo.svg`,
+  image: `${site.url}/images/murray-consulting.png`,
   founder: { "@type": "Person", name: site.contactName, jobTitle: "Registered Quantity Surveyor" },
   address: {
     "@type": "PostalAddress",

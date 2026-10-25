@@ -132,7 +132,7 @@ export default function About() {
               </div>
             </div>
             <div className="cta-card__media">
-              <Image src="/images/icon.png" alt="" width={1000} height={1000} sizes="(max-width: 767px) 80vw, 400px" />
+              <Image src="/brand/proqs-mark-white.svg" alt="" width={279} height={196} />
             </div>
           </div>
         </div>

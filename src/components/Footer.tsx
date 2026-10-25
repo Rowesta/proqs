@@ -19,7 +19,7 @@ export default function Footer() {
         <div className="footer__grid">
           <div className="footer__brand">
             <Link href="/" className="footer__logo" aria-label="ProQS home">
-              <Image src="/images/logo-white.png" alt="ProQS New Zealand" width={500} height={239} />
+              <Image src="/brand/proqs-logo-white.svg" alt="ProQS New Zealand" width={767} height={196} />
             </Link>
             <p>
               Independent residential quantity surveying by {site.contactName}, Registered Quantity Surveyor.
