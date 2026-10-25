@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Instrument_Sans, Onest } from "next/font/google";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import RevealOnScroll from "@/components/RevealOnScroll";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
     siteName: site.name,
     locale: "en_NZ",
     type: "website",
-    images: ["/images/hero-home.avif"],
+    images: ["/images/murray-consulting.png"],
   },
 };
 
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Header />
         <main id="main">{children}</main>
         <Footer />
+        <RevealOnScroll />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

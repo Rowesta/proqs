@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import ContactDetails from "@/components/ContactDetails";
-import { CheckCircleIcon, ChevronDownIcon } from "@/components/Icons";
-import { faqs, mailto } from "@/lib/site";
+import { ChevronDownIcon } from "@/components/Icons";
+import QuoteForm from "@/components/QuoteForm";
+import { faqs, mailto, steps } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Contact ProQS New Zealand | Quantity Surveyor in Ponsonby",
   description:
-    "Contact ProQS New Zealand today for reliable cost estimates and construction advice. Reach us via phone or email.",
+    "Send your plans to ProQS New Zealand for a reliable residential cost estimate, or contact Murray Bell by phone or email.",
   alternates: { canonical: "/contact" },
   openGraph: {
     title: "Contact ProQS New Zealand | Quantity Surveyor in Ponsonby",
@@ -29,26 +29,32 @@ const faqJsonLd = {
 export default function Contact() {
   return (
     <>
-      <section className="section section--secondary section--top">
+      <section id="quote" className="section section--secondary section--top">
         <div className="container">
           <div className="section-header">
-            <p className="eyebrow">Contact details</p>
-            <h1 className="h2">Connect with a cost expert</h1>
+            <p className="eyebrow">Get a quote</p>
+            <h1 className="h2">Send your plans for an independent estimate</h1>
             <p className="subheading">
-              Reach out for accurate estimates or advice. We&apos;re here to help with your residential project.
+              Upload your drawings and a few details. Murray will review them and confirm your timeline — most
+              estimates are ready within 3–5 business days.
             </p>
           </div>
-          <div className="split">
-            <ContactDetails layout="stack" emailNote="Get prompt responses to your queries." />
-            <div className="ratio-portrait">
-              <Image
-                src="/images/contact-header.png"
-                alt="Murray Bell on a residential building site"
-                fill
-                preload
-                sizes="(max-width: 767px) 100vw, 40vw"
-              />
+          <div className="contact-layout">
+            <div className="panel">
+              <QuoteForm />
             </div>
+            <aside className="contact-aside">
+              <h2 className="contact-aside__title">Prefer to talk first?</h2>
+              <ContactDetails layout="stack" emailNote="Get prompt responses to your queries." />
+              <div className="contact-aside__steps">
+                <h3>What happens next</h3>
+                <ol>
+                  {steps.map((s) => (
+                    <li key={s.title}>{s.title}</li>
+                  ))}
+                </ol>
+              </div>
+            </aside>
           </div>
         </div>
       </section>
@@ -73,34 +79,6 @@ export default function Contact() {
           <p className="faq__more">
             Need more help? <a href={mailto("Website Enquiry")}>Get in touch with us.</a>
           </p>
-        </div>
-      </section>
-
-      <section className="section section--secondary">
-        <div className="container split split--center">
-          <div>
-            <span className="icon-tile">
-              <CheckCircleIcon />
-            </span>
-            <h2>Contact a trusted cost expert</h2>
-            <p className="subheading">
-              Reach out for accurate estimates, practical advice, or to discuss your residential project.
-              We&apos;re ready to assist.
-            </p>
-            <div className="button-group">
-              <a href={mailto("Website Enquiry")} className="button button--primary">
-                Email Murray
-              </a>
-            </div>
-          </div>
-          <div className="ratio-4x3">
-            <Image
-              src="/images/contact-villa.jpg"
-              alt="Restored Auckland villa"
-              fill
-              sizes="(max-width: 767px) 100vw, 50vw"
-            />
-          </div>
         </div>
       </section>
 

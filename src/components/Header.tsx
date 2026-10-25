@@ -4,35 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { mailto, site } from "@/lib/site";
+import { quoteHref, services } from "@/lib/site";
 import { ChevronDownIcon, CloseIcon, MenuIcon } from "./Icons";
-
-const megaMenu = [
-  {
-    heading: "Cost Estimates",
-    links: [
-      { label: "Residential Builds", desc: "Accurate pricing for new home projects.", href: "/#services" },
-      { label: "Renovations", desc: "Detailed estimates for home upgrades.", href: "/#services" },
-      { label: "Extensions", desc: "Budgeting for home additions.", href: "/#services" },
-    ],
-  },
-  {
-    heading: "Planning & Advice",
-    links: [
-      { label: "Feasibility Reports", desc: "Assess project costs before you build.", href: "/#services" },
-      { label: "Budget Advice", desc: "Guidance for new builds and renovations.", href: "/#services" },
-      { label: "Tender Review", desc: "Independent review of builder quotes.", href: "/#services" },
-    ],
-  },
-  {
-    heading: "About & Contact",
-    links: [
-      { label: "About", desc: "Learn about our experience and approach.", href: "/about" },
-      { label: "Contact", desc: "Get in touch for a quote.", href: "/contact" },
-      { label: "Location", desc: "Based in Ponsonby, Auckland.", href: site.mapsHref },
-    ],
-  },
-];
 
 export default function Header() {
   const pathname = usePathname();
@@ -95,31 +68,21 @@ export default function Header() {
               >
                 Services <ChevronDownIcon className={`nav__chevron${servicesOpen ? " is-open" : ""}`} />
               </button>
-              <div id="services-menu" className={`mega${servicesOpen ? " is-open" : ""}`}>
-                <div className="container mega__inner">
-                  {megaMenu.map((col) => (
-                    <div key={col.heading} className="mega__col">
-                      <div className="eyebrow">{col.heading}</div>
-                      <ul>
-                        {col.links.map((l) => (
-                          <li key={l.label}>
-                            <Link href={l.href} className="mega__link" onClick={close}>
-                              <span className="mega__label">{l.label}</span>
-                              <span className="mega__desc">{l.desc}</span>
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+              <div id="services-menu" className={`dropdown${servicesOpen ? " is-open" : ""}`}>
+                <ul>
+                  {services.map((s) => (
+                    <li key={s.id}>
+                      <Link href={`/#${s.id}`} className="dropdown__link" onClick={close}>
+                        {s.title}
+                      </Link>
+                    </li>
                   ))}
-                  <a className="mega__cta" href={mailto("Plans for a quote")}>
-                    <span className="mega__cta-title">Send your plans for a quote</span>
-                    <span className="mega__desc">
-                      Email your drawings to receive a detailed, independent cost estimate for your project.
-                    </span>
-                    <span className="button button--primary button--small">Send plans</span>
-                  </a>
-                </div>
+                  <li className="dropdown__divider">
+                    <Link href="/#how-it-works" className="dropdown__link" onClick={close}>
+                      How it works
+                    </Link>
+                  </li>
+                </ul>
               </div>
             </li>
             <li>
@@ -133,6 +96,9 @@ export default function Header() {
               </Link>
             </li>
           </ul>
+          <Link href={quoteHref} className="button button--primary nav__cta" onClick={close}>
+            Send your plans
+          </Link>
         </nav>
       </div>
     </header>
