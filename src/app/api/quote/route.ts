@@ -1,7 +1,8 @@
-import { get } from "@vercel/blob";
+import { get, issueSignedToken, presignUrl } from "@vercel/blob";
 import { NextResponse } from "next/server";
 import { projectTypes, site } from "@/lib/site";
-import { MAX_FILES, UPLOAD_PREFIX, formatBytes } from "@/lib/uploads";
+import { DOWNLOAD_LINK_DAYS, buildQuoteEmail, type QuoteEmailFile } from "@/lib/quoteEmail";
+import { MAX_FILES, UPLOAD_PREFIX } from "@/lib/uploads";
 
 // Resend caps a whole email at 40 MB; leave headroom for base64 overhead.
 const MAX_ATTACH_BYTES = 28 * 1024 * 1024;
@@ -16,9 +17,6 @@ type QuoteRequest = {
   company?: string; // honeypot
   files?: { pathname: string; name: string; size: number }[];
 };
-
-const escape = (s: string) =>
-  s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
 const clean = (s: unknown, max: number) => (typeof s === "string" ? s.trim().slice(0, max) : "");
 
@@ -56,7 +54,7 @@ export async function POST(request: Request) {
 
   // Attach plans directly while they fit; anything beyond that stays in Blob storage.
   const attachments: { filename: string; content: string }[] = [];
-  const notAttached: string[] = [];
+  const emailFiles: QuoteEmailFile[] = [];
   let attachedBytes = 0;
   for (const f of files) {
     const fileName = clean(f.name, 200) || f.pathname.split("/").pop()!;
@@ -64,41 +62,34 @@ export async function POST(request: Request) {
       const result = await get(f.pathname, { access: "private" });
       if (!result || result.statusCode !== 200) throw new Error("missing");
       if (attachedBytes + result.blob.size > MAX_ATTACH_BYTES) {
-        notAttached.push(`${fileName} (${formatBytes(result.blob.size)}) — stored as ${f.pathname}`);
+        emailFiles.push({
+          name: fileName,
+          size: result.blob.size,
+          attached: false,
+          downloadUrl: await downloadLink(result.blob.pathname),
+        });
         continue;
       }
       const buf = Buffer.from(await new Response(result.stream).arrayBuffer());
       attachedBytes += buf.byteLength;
       attachments.push({ filename: fileName, content: buf.toString("base64") });
+      emailFiles.push({ name: fileName, size: buf.byteLength, attached: true });
     } catch {
-      notAttached.push(`${fileName} — could not be retrieved (${f.pathname})`);
+      console.error("Could not retrieve uploaded plan:", f.pathname);
+      emailFiles.push({ name: fileName, size: Number(f.size) || 0, attached: false });
     }
   }
 
-  const rows: [string, string][] = [
-    ["Name", name],
-    ["Email", email],
-    ["Phone", phone || "—"],
-    ["Project type", projectType || "—"],
-    ["Location", location || "—"],
-  ];
-
-  const html = `
-    <h2>New quote request</h2>
-    <table cellpadding="6" style="border-collapse:collapse">
-      ${rows.map(([k, v]) => `<tr><td><strong>${k}</strong></td><td>${escape(v)}</td></tr>`).join("")}
-    </table>
-    <h3>Project details</h3>
-    <p style="white-space:pre-wrap">${escape(message || "—")}</p>
-    <h3>Plans</h3>
-    <p>${attachments.length ? `${attachments.length} file(s) attached.` : "No files attached."}</p>
-    ${
-      notAttached.length
-        ? `<p>Not attached (too large for email — download from the Vercel Blob dashboard):</p><ul>${notAttached
-            .map((n) => `<li>${escape(n)}</li>`)
-            .join("")}</ul>`
-        : ""
-    }`;
+  const { subject, html, text } = buildQuoteEmail({
+    name,
+    email,
+    phone,
+    projectType,
+    location,
+    message,
+    files: emailFiles,
+    origin: new URL(request.url).origin,
+  });
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -106,9 +97,10 @@ export async function POST(request: Request) {
     body: JSON.stringify({
       from,
       to: process.env.QUOTE_TO_EMAIL || site.email,
-      reply_to: email,
-      subject: `Quote request: ${name}${projectType ? ` — ${projectType}` : ""}`,
+      reply_to: `${name.replace(/[<>"]/g, "")} <${email}>`,
+      subject,
       html,
+      text,
       attachments,
     }),
   });
@@ -119,4 +111,17 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ ok: true });
+}
+
+/** A time-limited link Murray can use to download a private plan file. Falls back to none on failure. */
+async function downloadLink(pathname: string): Promise<string | undefined> {
+  try {
+    const validUntil = Date.now() + DOWNLOAD_LINK_DAYS * 24 * 60 * 60 * 1000;
+    const token = await issueSignedToken({ pathname, operations: ["get"], validUntil });
+    const { presignedUrl } = await presignUrl(token, { operation: "get", pathname, access: "private", validUntil });
+    return presignedUrl;
+  } catch (error) {
+    console.error("Could not create download link for", pathname, error);
+    return undefined;
+  }
 }
