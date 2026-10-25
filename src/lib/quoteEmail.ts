@@ -221,3 +221,155 @@ export function buildQuoteEmail(d: QuoteEmailData) {
 
   return { subject, html, text };
 }
+
+// ---------------------------------------------------------------------------
+// Confirmation sent to the person who filled in the form.
+// Anyone can type any address into the form, so this email must never echo
+// free text (message, location, file names) — only fixed wording plus a
+// sanitised first name, the chosen project type and a file count.
+// ---------------------------------------------------------------------------
+
+export type ConfirmationEmailData = {
+  name: string;
+  projectType: string;
+  fileCount: number;
+  origin: string;
+  contact: { name: string; email: string; phoneDisplay: string; phoneHref: string; address: string };
+};
+
+/** Letters, apostrophes and hyphens only — no links or other text can ride along. */
+const safeFirstName = (name: string) =>
+  (name.trim().split(/\s+/)[0] ?? "").replace(/[^\p{L}'’-]/gu, "").slice(0, 30);
+
+export function buildConfirmationEmail(d: ConfirmationEmailData) {
+  const first = safeFirstName(d.name);
+  const greeting = first ? `Thanks, ${first}` : "Thanks";
+  const subject = "We've received your quote request – ProQS";
+  const plans =
+    d.fileCount > 0 ? `${d.fileCount} plan file${d.fileCount > 1 ? "s" : ""} received` : "No plans attached yet";
+
+  const steps = [
+    ["Review", `${d.contact.name} reviews your plans and confirms your timeline.`],
+    ["Estimate", "You receive an independent, itemised cost estimate — typically within 3–5 business days."],
+    ["Talk it through", "Go over the numbers together and decide your next step with confidence."],
+  ];
+
+  const summaryRows: [string, string][] = [
+    ["Project type", d.projectType ? esc(d.projectType) : "—"],
+    ["Plans", esc(plans)],
+  ];
+
+  const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>${esc(subject)}</title>
+</head>
+<body style="margin:0;padding:0;background:${BG};-webkit-text-size-adjust:100%;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(
+    `${d.contact.name} has your request and will be in touch to confirm your timeline.`,
+  )}</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${BG};">
+    <tr>
+      <td align="center" style="padding:28px 16px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#FFFFFF;border-radius:10px;overflow:hidden;font-family:${FONT};">
+          <tr><td style="height:4px;background:${ACCENT};font-size:0;line-height:0;">&nbsp;</td></tr>
+          <tr>
+            <td style="padding:28px 28px 20px;border-bottom:1px solid ${BORDER};">
+              <img src="${esc(d.origin)}/brand/proqs-logo-email.png" width="140" alt="ProQS New Zealand" style="display:block;border:0;width:140px;height:auto;">
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:28px 28px 8px;">
+              <h1 style="margin:0 0 10px;font-size:24px;line-height:1.25;font-weight:600;color:${NAVY};">${esc(greeting)} — we've received your request</h1>
+              <p style="margin:0;font-size:16px;line-height:1.6;color:${NAVY};">
+                ${esc(d.contact.name)} will review your details and be in touch to confirm your timeline. Most estimates are ready within 3–5 business days.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 28px 4px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${BG};border-radius:6px;">
+                ${summaryRows
+                  .map(
+                    ([label, value], i) => `
+                <tr>
+                  <td style="padding:12px 16px;${i ? `border-top:1px solid ${BORDER};` : ""}width:120px;font-size:13px;color:${MUTED};">${label}</td>
+                  <td style="padding:12px 16px;${i ? `border-top:1px solid ${BORDER};` : ""}font-size:15px;color:${NAVY};">${value}</td>
+                </tr>`,
+                  )
+                  .join("")}
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 28px 4px;">
+              <p style="margin:0 0 12px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:${MUTED};font-weight:600;">What happens next</p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                ${steps
+                  .map(
+                    ([title, body], i) => `
+                <tr>
+                  <td style="width:36px;vertical-align:top;padding:0 0 14px;">
+                    <div style="width:26px;height:26px;border-radius:13px;background:${NAVY};color:${ACCENT};font-size:13px;font-weight:600;line-height:26px;text-align:center;">${i + 1}</div>
+                  </td>
+                  <td style="vertical-align:top;padding:2px 0 14px;font-size:15px;line-height:1.5;color:${NAVY};">
+                    <strong>${esc(title)}</strong><br><span style="color:${MUTED};">${esc(body)}</span>
+                  </td>
+                </tr>`,
+                  )
+                  .join("")}
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:8px 28px 28px;">
+              <p style="margin:0 0 6px;font-size:15px;line-height:1.6;color:${NAVY};">
+                Want to add more plans or details? Just reply to this email, or call ${esc(d.contact.name.split(" ")[0])} on
+                <a href="${esc(d.contact.phoneHref)}" style="color:${ACCENT_INK};text-decoration:none;">${esc(d.contact.phoneDisplay)}</a>.
+              </p>
+              <p style="margin:16px 0 0;font-size:15px;color:${NAVY};">
+                ${esc(d.contact.name)}<br>
+                <span style="color:${MUTED};">Registered Quantity Surveyor · ProQS New Zealand</span>
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:18px 28px;background:${NAVY};font-size:12px;line-height:1.6;color:#B8B8C8;">
+              ProQS New Zealand · ${esc(d.contact.address)}<br>
+              <a href="${esc(d.origin)}" style="color:${ACCENT};text-decoration:none;">proqs.co.nz</a> ·
+              <a href="mailto:${esc(d.contact.email)}" style="color:${ACCENT};text-decoration:none;">${esc(d.contact.email)}</a><br>
+              You're receiving this because a quote request was submitted with this email address on our website.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  const text = [
+    `${greeting} — we've received your request`,
+    ``,
+    `${d.contact.name} will review your details and be in touch to confirm your timeline. Most estimates are ready within 3–5 business days.`,
+    ``,
+    `Project type: ${d.projectType || "—"}`,
+    `Plans:        ${plans}`,
+    ``,
+    `WHAT HAPPENS NEXT`,
+    ...steps.map(([title, body], i) => `${i + 1}. ${title} – ${body}`),
+    ``,
+    `Want to add more plans or details? Reply to this email, or call ${d.contact.phoneDisplay}.`,
+    ``,
+    d.contact.name,
+    `Registered Quantity Surveyor · ProQS New Zealand`,
+    `${d.contact.address} · proqs.co.nz`,
+    ``,
+    `You're receiving this because a quote request was submitted with this email address on our website.`,
+  ].join("\n");
+
+  return { subject, html, text };
+}

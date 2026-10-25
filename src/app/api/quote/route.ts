@@ -1,7 +1,7 @@
 import { get, issueSignedToken, presignUrl } from "@vercel/blob";
 import { NextResponse } from "next/server";
 import { projectTypes, site } from "@/lib/site";
-import { DOWNLOAD_LINK_DAYS, buildQuoteEmail, type QuoteEmailFile } from "@/lib/quoteEmail";
+import { DOWNLOAD_LINK_DAYS, buildConfirmationEmail, buildQuoteEmail, type QuoteEmailFile } from "@/lib/quoteEmail";
 import { MAX_FILES, UPLOAD_PREFIX } from "@/lib/uploads";
 
 // Resend caps a whole email at 40 MB; leave headroom for base64 overhead.
@@ -80,6 +80,7 @@ export async function POST(request: Request) {
     }
   }
 
+  const origin = new URL(request.url).origin;
   const { subject, html, text } = buildQuoteEmail({
     name,
     email,
@@ -88,21 +89,17 @@ export async function POST(request: Request) {
     location,
     message,
     files: emailFiles,
-    origin: new URL(request.url).origin,
+    origin,
   });
 
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from,
-      to: process.env.QUOTE_TO_EMAIL || site.email,
-      reply_to: `${name.replace(/[<>"]/g, "")} <${email}>`,
-      subject,
-      html,
-      text,
-      attachments,
-    }),
+  const res = await sendEmail(apiKey, {
+    from,
+    to: process.env.QUOTE_TO_EMAIL || site.email,
+    reply_to: `${name.replace(/[<>"]/g, "")} <${email}>`,
+    subject,
+    html,
+    text,
+    attachments,
   });
 
   if (!res.ok) {
@@ -110,7 +107,50 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "We couldn't send your request." }, { status: 502 });
   }
 
-  return NextResponse.json({ ok: true });
+  // Confirmation to the client. Best effort: Murray already has the request, so a failure here
+  // is logged but doesn't turn a successful submission into an error for the client.
+  let confirmationSent = false;
+  try {
+    const confirmation = buildConfirmationEmail({
+      name,
+      projectType,
+      fileCount: emailFiles.length,
+      origin,
+      contact: {
+        name: site.contactName,
+        email: site.email,
+        phoneDisplay: site.phoneDisplay,
+        phoneHref: site.phoneHref,
+        address: `${site.address.street}, ${site.address.suburb}, ${site.address.city}`,
+      },
+    });
+    const sent = await sendEmail(apiKey, {
+      from: withDisplayName(from, "ProQS New Zealand"),
+      to: email,
+      reply_to: `${site.contactName} <${site.email}>`,
+      ...confirmation,
+    });
+    confirmationSent = sent.ok;
+    if (!sent.ok) console.error("Confirmation email failed", sent.status, await sent.text());
+  } catch (error) {
+    console.error("Confirmation email failed", error);
+  }
+
+  return NextResponse.json({ ok: true, confirmationSent });
+}
+
+function sendEmail(apiKey: string, payload: Record<string, unknown>) {
+  return fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+/** "ProQS website <quotes@proqs.co.nz>" -> "ProQS New Zealand <quotes@proqs.co.nz>" */
+function withDisplayName(from: string, displayName: string) {
+  const address = from.match(/<([^>]+)>/)?.[1] ?? from.trim();
+  return `${displayName} <${address}>`;
 }
 
 /** A time-limited link Murray can use to download a private plan file. Falls back to none on failure. */

@@ -6,7 +6,7 @@ import { mailto, projectTypes, site, steps } from "@/lib/site";
 import { ACCEPT_ATTR, MAX_FILES, MAX_FILE_BYTES, UPLOAD_PREFIX, formatBytes } from "@/lib/uploads";
 import { CheckCircleIcon, CloseIcon } from "./Icons";
 
-type Sent = { name: string; email: string; files: { name: string; size: number }[] };
+type Sent = { name: string; email: string; files: { name: string; size: number }[]; confirmationSent: boolean };
 
 type Status =
   | { kind: "idle" }
@@ -94,15 +94,18 @@ export default function QuoteForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...data, files: uploaded }),
       });
-      if (!res.ok) {
-        const { error } = await res.json().catch(() => ({ error: "" }));
-        throw new Error(error || `Request failed (${res.status})`);
-      }
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(result.error || `Request failed (${res.status})`);
       form.reset();
       setFiles([]);
       setStatus({
         kind: "sent",
-        sent: { name: data.name?.trim() ?? "", email: data.email?.trim() ?? "", files: uploaded.map(({ name, size }) => ({ name, size })) },
+        sent: {
+          name: data.name?.trim() ?? "",
+          email: data.email?.trim() ?? "",
+          files: uploaded.map(({ name, size }) => ({ name, size })),
+          confirmationSent: Boolean(result.confirmationSent),
+        },
       });
     } catch (err) {
       console.error("Quote form failed", err);
@@ -111,7 +114,7 @@ export default function QuoteForm() {
   };
 
   if (status.kind === "sent") {
-    const { name, email, files: sentFiles } = status.sent;
+    const { name, email, files: sentFiles, confirmationSent } = status.sent;
     const first = name.split(/\s+/)[0];
     return (
       <div className="form-success" role="status" aria-live="polite" ref={successRef} tabIndex={-1}>
@@ -119,6 +122,7 @@ export default function QuoteForm() {
         <h3 className="form-success__title">Thanks{first ? `, ${first}` : ""} — your request has been sent</h3>
         <p className="form-success__lead">
           Murray has received your details and will reply to <strong>{email}</strong>.
+          {confirmationSent && " We've also emailed you a confirmation — check your spam folder if it doesn't arrive."}
         </p>
 
         <div className="form-success__summary">
