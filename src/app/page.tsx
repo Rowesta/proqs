@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import ContactDetails from "@/components/ContactDetails";
+import EstimateCard from "@/components/EstimateCard";
+import HouseMark from "@/components/HouseMark";
 import { CheckCircleIcon } from "@/components/Icons";
 import { audiences, credentials, quoteHref, services, site, steps, testimonial } from "@/lib/site";
 
@@ -29,6 +31,7 @@ export default function Home() {
           />
         </div>
         <div className="hero-split__content">
+          <HouseMark draw className="hero-split__mark" />
           <p className="eyebrow eyebrow--light">Independent quantity surveyor · Auckland</p>
           <h1 className="hero__title">Build with cost clarity</h1>
           <p className="subheading">
@@ -43,6 +46,7 @@ export default function Home() {
               How it works
             </Link>
           </div>
+          <EstimateCard />
         </div>
       </section>
 
@@ -170,7 +174,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section section--navy">
+      <section className="section section--navy section--mark">
+        <div className="section__watermark" data-reveal>
+          <HouseMark draw outline />
+        </div>
         <div className="container">
           <div className="section-header is-center" data-reveal>
             <p className="eyebrow eyebrow--light">Get started</p>

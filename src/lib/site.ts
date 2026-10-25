@@ -104,6 +104,23 @@ export const steps = [
   },
 ];
 
+/**
+ * Illustrative only — shown on the homepage as an example of an itemised estimate.
+ * Not a quote or published rates. Murray should sanity-check these figures.
+ */
+export const sampleEstimate = {
+  title: "New 3-bedroom home",
+  subtitle: "180 m² · single level · Auckland",
+  items: [
+    { label: "Site works & foundations", amount: 68400 },
+    { label: "Framing & structure", amount: 96200 },
+    { label: "Roofing & cladding", amount: 112800 },
+    { label: "Windows & doors", amount: 54300 },
+    { label: "Plumbing & electrical", amount: 71500 },
+    { label: "Linings, kitchen & finishes", amount: 138900 },
+  ],
+};
+
 export const testimonial = {
   quote: "ProQS gives us peace of mind when we are working with our clients.",
   name: "Ursala Gilchrist",
